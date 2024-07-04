@@ -5,6 +5,9 @@ module.exports = {
   ],
   theme: {
     extend: {},
+    fontFamily: {
+      baloo: ["Baloo"],
+    },
   },
   plugins: [],
 }
