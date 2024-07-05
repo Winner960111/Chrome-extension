@@ -1,4 +1,11 @@
-import React, { createContext, useState, useContext, ReactNode } from "react";
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  useRef,
+  useContext,
+  ReactNode,
+} from "react";
 import { IoIosArrowBack } from "react-icons/io";
 import { FaRegUserCircle } from "react-icons/fa";
 import { MdOutlineClose } from "react-icons/md";
@@ -8,6 +15,8 @@ import { BsJournalText } from "react-icons/bs";
 import { CiSearch } from "react-icons/ci";
 import Service from "./elements/Service";
 import ServiceList from "./elements/ServiceList";
+import { TbMessage2 } from "react-icons/tb";
+import { RiLogoutBoxLine } from "react-icons/ri";
 
 type ContextType = {
   currentView: string;
@@ -321,6 +330,8 @@ const Home = () => {
   const [extract, setExtract] = useState(false);
   const [setting, setSetting] = useState(false);
   const [onSearch, setOnSearch] = useState(false);
+  const [account, setAccount] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleStore = () => {
     setStore(true);
@@ -337,13 +348,43 @@ const Home = () => {
     setExtract(false);
     setSetting(true);
   };
+  const handleAccount = () => {
+    if (account) {
+      setAccount(false);
+    } else {
+      setAccount(true);
+    }
+  };
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      containerRef.current &&
+      !containerRef.current.contains(event.target as Node)
+    ) {
+      // Click occurred outside the container
+      setAccount(false);
+      // Perform your desired action here
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [containerRef]);
+
   return (
     <>
       <div className="w-[800px] h-[600px] flex flex-col font-baloo pb-4 justify-between">
-        <div className="flex w-full bg-[#212121] px-4 py-5 justify-between">
+        <div className="relative flex w-full bg-[#212121] px-4 py-5 justify-between">
           <img src="/assets/logo.png" alt="logo" />
           <div className="flex">
-            <div className="flex items-center bg-[#2A2A2A] px-2 rounded-full">
+            <div
+              className="flex items-center bg-[#2A2A2A] px-2 rounded-full cursor-pointer"
+              onClick={handleAccount}
+            >
               <FaRegUserCircle style={{ color: "white", fontSize: "25px" }} />
               <div className="flex flex-col text-white ml-1 text-[9px]">
                 <p className="leading-3">Laura</p>
@@ -354,12 +395,61 @@ const Home = () => {
               <MdOutlineClose style={{ color: "white", fontSize: "25px" }} />
             </div>
           </div>
+
+          {account && (
+            <div
+              className="absolute top-20 right-8 z-[100] flex w-[477px] bg-white p-5 rounded-xl flex-col"
+              ref={containerRef}
+            >
+              <div className="flex w-full justify-between">
+                <div className="flex gap-5 items-center">
+                  <FaRegUserCircle
+                    style={{ color: "#464646", fontSize: "30px" }}
+                  />
+                  <div className="flex flex-col">
+                    <p className="font-bold text-[16px] text-[#464646]">
+                      Laura Oliveira
+                    </p>
+                    <p className="text-[14px] text-[#888]">200.000.000-00</p>
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <p className="text-[14px] text-[#464646]">Meu saldo</p>
+                  <p className="text-[16px] font-bold text-[#464646]">
+                    R$ 47,32
+                  </p>
+                </div>
+              </div>
+              <div className="my-5 border-solid border-[1px] border-[#E4E4E4]"></div>
+
+              <div className="flex w-full flex-col">
+                <div className="flex w-full text-[#464646] gap-6 items-center">
+                  <TbMessage2 style={{ fontSize: "16px" }} />
+                  <p className="font-bold text-[16px]">Precisa de ajuda</p>
+                </div>
+                <div className="flex w-full text-[#464646] gap-6 items-center my-5">
+                  <TbMessage2 style={{ fontSize: "16px" }} />
+                  <p className="font-bold text-[16px]">Indique e ganhe</p>
+                </div>
+              </div>
+
+              <div
+                className="flex w-full rounded-full bg-[#F8F8F8] justify-center py-3 cursor-pointer hover:bg-gray-200 active:bg-[#F8F8F8]"
+                onClick={() => setCurrentView("Landing")}
+              >
+                <div className="flex items-center text-[#BF0811]">
+                  <RiLogoutBoxLine style={{ fontSize: "20px" }} />
+                  <p className="text-[20px]">Finalizar sessão</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
         {store && (
           <div
             className={`flex w-full flex-col px-4 overflow-y-scroll font-baloo ${
               onSearch ? "bg-black bg-opacity-30" : ""
-            }`}
+            } ${account ? "bg-black bg-opacity-30" : ""}`}
           >
             <div className="flex flex-col">
               <div className="relative my-8">
@@ -376,16 +466,14 @@ const Home = () => {
                 <div className="absolute right-4 top-4 z-10">
                   <CiSearch style={{ fontSize: "25px" }} />
                 </div>
+                {onSearch && (
+                  <div className="absolute top-24 w-full h-[280px] bg-white rounded-2xl flex p-5 -mt-5 divide-y-[1px] divide-gray-300 flex-col overflow-y-auto">
+                    <ServiceList />
+                    <ServiceList />
+                    <ServiceList />
+                  </div>
+                )}
               </div>
-
-              {/* search functionality*/}
-              {onSearch && (
-                <div className="w-full bg-white rounded-2xl flex p-5 -mt-5 divide-y-[1px] divide-gray-300 flex-col">
-                  <ServiceList />
-                  <ServiceList />
-                  <ServiceList />
-                </div>
-              )}
             </div>
             <div className="flex flex-col">
               <p className="font-bold text-[#464646] text-[20px]">
@@ -412,7 +500,11 @@ const Home = () => {
             </div>
           </div>
         )}
-        <div className="flex w-full justify-between px-4">
+        <div
+          className={`flex w-full justify-between px-4 ${
+            account ? "bg-black bg-opacity-30" : ""
+          }`}
+        >
           <div className="flex items-center px-6 pt-4">
             <div
               className={`flex gap-4 ${
