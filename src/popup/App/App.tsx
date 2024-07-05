@@ -15,10 +15,64 @@ import { BsJournalText } from "react-icons/bs";
 import { CiSearch } from "react-icons/ci";
 import Service from "./elements/Service";
 import ServiceList from "./elements/ServiceList";
-import { TbMessage2 } from "react-icons/tb";
+import { TbMessage2, TbUserEdit } from "react-icons/tb";
 import { RiLogoutBoxLine } from "react-icons/ri";
 import { LuEye } from "react-icons/lu";
 import Extract from "./elements/Extract";
+import { CiCalendar } from "react-icons/ci";
+import { CiLocationOn } from "react-icons/ci";
+import { IoShieldCheckmarkOutline } from "react-icons/io5";
+import { styled } from "@mui/material/styles";
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Switch, { SwitchProps } from "@mui/material/Switch";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+
+const AntSwitch = styled(Switch)(({ theme }) => ({
+  width: 28,
+  height: 16,
+  padding: 0,
+  display: "flex",
+  "&:active": {
+    "& .MuiSwitch-thumb": {
+      width: 15,
+    },
+    "& .MuiSwitch-switchBase.Mui-checked": {
+      transform: "translateX(9px)",
+    },
+  },
+  "& .MuiSwitch-switchBase": {
+    padding: 2,
+    "&.Mui-checked": {
+      transform: "translateX(12px)",
+      color: "#fff",
+      "& + .MuiSwitch-track": {
+        opacity: 1,
+        backgroundColor: theme.palette.mode === "dark" ? "#177ddc" : "#1890ff",
+      },
+    },
+  },
+  "& .MuiSwitch-thumb": {
+    boxShadow: "0 2px 4px 0 rgb(0 35 11 / 20%)",
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    transition: theme.transitions.create(["width"], {
+      duration: 200,
+    }),
+  },
+  "& .MuiSwitch-track": {
+    borderRadius: 16 / 2,
+    opacity: 1,
+    backgroundColor:
+      theme.palette.mode === "dark"
+        ? "rgba(255,255,255,.35)"
+        : "rgba(0,0,0,.25)",
+    boxSizing: "border-box",
+  },
+}));
+
 type ContextType = {
   currentView: string;
   setCurrentView: React.Dispatch<React.SetStateAction<string>>;
@@ -327,11 +381,12 @@ const Registration2 = () => {
 
 const Home = () => {
   const { setCurrentView } = useContext(MyContext)!;
-  const [store, setStore] = useState(true);
+  const [store, setStore] = useState(false);
   const [extract, setExtract] = useState(false);
-  const [setting, setSetting] = useState(false);
+  const [setting, setSetting] = useState(true);
   const [onSearch, setOnSearch] = useState(false);
   const [account, setAccount] = useState(false);
+  const [modal, setModal] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleStore = () => {
@@ -378,7 +433,11 @@ const Home = () => {
 
   return (
     <>
-      <div className="w-[800px] h-[600px] flex flex-col font-baloo pb-4">
+      <div
+        className={`relative w-[800px] h-[600px] flex flex-col font-baloo pb-4 ${
+          modal ? "bg-black bg-opacity-30" : ""
+        }`}
+      >
         <div className="relative flex w-full bg-[#212121] px-4 py-5 justify-between">
           <img src="/assets/logo.png" alt="logo" />
           <div className="flex">
@@ -516,20 +575,192 @@ const Home = () => {
                 </p>
               </div>
             </div>
-            <div className="flex w-full h-[275px] px-5 py-8 bg-white flex-col overflow-y-auto">
+            <div
+              className={`flex w-full h-[275px] px-5 py-8 bg-white flex-col overflow-y-auto ${
+                modal ? "bg-black bg-opacity-30" : ""
+              }`}
+            >
               <p className="text-[20px] font-bold">Meu extrato</p>
-              <Extract />
-              <Extract />
-              <Extract />
-              <Extract />
-              <Extract />
+              <div onClick={() => setModal(true)} className="cursor-pointer">
+                <Extract />
+              </div>
+            </div>
+            {modal && (
+              <div className="absolute top-0 flex w-full h-full justify-center items-center">
+                <div className="flex w-[768px] h-[307px] flex-col divide-y-[1px] divide-[#E4E4E4] rounded-2xl bg-white p-5">
+                  <div className="flex mb-6 text-[#464646] items-center justify-between">
+                    <p className="text-[18px] font-bold">Mais detalhes</p>
+                    <div
+                      className="hover:text-red-500 cursor-pointer"
+                      onClick={() => {
+                        setModal(false);
+                      }}
+                    >
+                      <MdOutlineClose style={{ fontSize: "20px" }} />
+                    </div>
+                  </div>
+                  <div className="py-6 flex justify-between items-center">
+                    <div>
+                      <p className="text-[16px] font-medium text-[#464646]">
+                        Magazine Luiza
+                      </p>
+                      <p className="text-[15px] text-[#9E9E9E]">25/05/24</p>
+                    </div>
+
+                    <div className="flex flex-col items-end">
+                      <p className="text-[16px] font-medium text-[#464646]">
+                        R$ 43,18
+                      </p>
+                      <p className="text-[15px] text-[#9E9E9E]">
+                        4% de R$ 457,13
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col">
+                    <div className="flex items-center py-6 justify-between">
+                      <div className="flex gap-2 items-center">
+                        <CiCalendar
+                          style={{ fontSize: "20px", color: "text-[#464646]" }}
+                        />
+                        <p className="text-[16px] font-bold text-[#464646]">
+                          Compra realizada
+                        </p>
+                      </div>
+                      <p className="text-[15px] text-[#9E9E9E]">20/05/24</p>
+                    </div>
+
+                    <div className="flex items-center py-6 justify-between">
+                      <div className="flex gap-2 items-center">
+                        <CiLocationOn
+                          style={{ fontSize: "20px", color: "text-[#464646]" }}
+                        />
+                        <p className="text-[16px] font-bold text-[#464646]">
+                          Cashback rastreado
+                        </p>
+                      </div>
+                      <p className="text-[15px] text-[#9E9E9E]">20/05/24</p>
+                    </div>
+
+                    <div className="flex items-center py-6 justify-between">
+                      <div className="flex gap-2 items-center">
+                        <IoShieldCheckmarkOutline
+                          style={{ fontSize: "20px", color: "text-[#464646]" }}
+                        />
+                        <p className="text-[16px] font-bold text-[#464646]">
+                          Cashback confirmado
+                        </p>
+                      </div>
+                      <p className="text-[15px] text-[#9E9E9E]">20/05/24</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+        {setting && (
+          <div className="flex py-8 px-4 flex-col gap-4">
+            <div className="flex flex-col">
+              <p className="text-[20px] font-bold text-[#464646]">
+                Preferências
+              </p>
+              <p className="text-[16px] text-[#9E9E9E]">
+                Escolha as permissões da extensão abaixo.
+              </p>
+            </div>
+            <div className="flex flex-col px-5 border-solid rounded-xl border-[#E4E4E4] border-[1px] divide-y-[1px] divide-[#E4E4E4]">
+              <div className="w-full flex py-5 items-center justify-between">
+                <p className="text-[16px] font-bold text-[#464646]">
+                  Lembrete de ativação de cashback
+                </p>
+                <div>
+                  <FormGroup>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      {/* <Typography>Off</Typography> */}
+                      <AntSwitch
+                        defaultChecked
+                        inputProps={{ "aria-label": "ant design" }}
+                      />
+                      {/* <Typography>On</Typography> */}
+                    </Stack>
+                  </FormGroup>
+                </div>
+              </div>
+              <div className="w-full flex py-5 items-center justify-between">
+                <p className="text-[16px] font-bold text-[#464646]">
+                  Sites similiares com cashback
+                </p>
+                <div>
+                  <FormGroup>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      {/* <Typography>Off</Typography> */}
+                      <AntSwitch
+                        defaultChecked
+                        inputProps={{ "aria-label": "ant design" }}
+                      />
+                      {/* <Typography>On</Typography> */}
+                    </Stack>
+                  </FormGroup>
+                </div>
+              </div>
+              <div className="w-full flex py-5 items-center justify-between">
+                <p className="text-[16px] font-bold text-[#464646]">
+                  Produtos similiares com cashback
+                </p>
+                <div>
+                  <FormGroup>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      {/* <Typography>Off</Typography> */}
+                      <AntSwitch
+                        defaultChecked
+                        inputProps={{ "aria-label": "ant design" }}
+                      />
+                      {/* <Typography>On</Typography> */}
+                    </Stack>
+                  </FormGroup>
+                </div>
+              </div>
+              <div className="w-full flex py-5 items-center justify-between">
+                <p className="text-[16px] font-bold text-[#464646]">
+                  Cupons no carrinho de compras
+                </p>
+                <div>
+                  <FormGroup>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      {/* <Typography>Off</Typography> */}
+                      <AntSwitch
+                        defaultChecked
+                        inputProps={{ "aria-label": "ant design" }}
+                      />
+                      {/* <Typography>On</Typography> */}
+                    </Stack>
+                  </FormGroup>
+                </div>
+              </div>
+              <div className="w-full flex py-5 items-center justify-between">
+                <p className="text-[16px] font-bold text-[#464646]">
+                  Notificação de cashback
+                </p>
+                <div>
+                  <FormGroup>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      {/* <Typography>Off</Typography> */}
+                      <AntSwitch
+                        defaultChecked
+                        inputProps={{ "aria-label": "ant design" }}
+                      />
+                      {/* <Typography>On</Typography> */}
+                    </Stack>
+                  </FormGroup>
+                </div>
+              </div>
             </div>
           </div>
         )}
         <div
           className={`flex w-full justify-between px-4 ${
             account ? "bg-black bg-opacity-30" : ""
-          }`}
+          } shadow-[0_-5px_10px_rgba(0,0,0,0.2)]`}
         >
           <div className="flex items-center px-6 pt-4">
             <div
