@@ -17,7 +17,8 @@ import Service from "./elements/Service";
 import ServiceList from "./elements/ServiceList";
 import { TbMessage2 } from "react-icons/tb";
 import { RiLogoutBoxLine } from "react-icons/ri";
-
+import { LuEye } from "react-icons/lu";
+import Extract from "./elements/Extract";
 type ContextType = {
   currentView: string;
   setCurrentView: React.Dispatch<React.SetStateAction<string>>;
@@ -377,7 +378,7 @@ const Home = () => {
 
   return (
     <>
-      <div className="w-[800px] h-[600px] flex flex-col font-baloo pb-4 justify-between">
+      <div className="w-[800px] h-[600px] flex flex-col font-baloo pb-4">
         <div className="relative flex w-full bg-[#212121] px-4 py-5 justify-between">
           <img src="/assets/logo.png" alt="logo" />
           <div className="flex">
@@ -497,6 +498,31 @@ const Home = () => {
                 <Service />
                 <Service />
               </div>
+            </div>
+          </div>
+        )}
+        {extract && (
+          <div className="flex w-full font-baloo flex-col">
+            <div className="flex w-full bg-[#212121] p-5">
+              <div className="flex bg-[#2A2A2A] p-5 text-white rounded-md w-full flex-col items-start">
+                <p className="text-[18px]">Meu saldo</p>
+                <div className="w-full flex justify-between items-center">
+                  <p className="text-[28px] font-bold">R$ 47.32</p>
+                  <LuEye style={{ fontSize: "24px" }} />
+                </div>
+                <p className="text-[16px]">
+                  O resgate do valor atual ficará disponível assim que seu saldo
+                  chegar a R$ 20.
+                </p>
+              </div>
+            </div>
+            <div className="flex w-full h-[275px] px-5 py-8 bg-white flex-col overflow-y-auto">
+              <p className="text-[20px] font-bold">Meu extrato</p>
+              <Extract />
+              <Extract />
+              <Extract />
+              <Extract />
+              <Extract />
             </div>
           </div>
         )}
