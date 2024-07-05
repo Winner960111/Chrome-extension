@@ -381,9 +381,9 @@ const Registration2 = () => {
 
 const Home = () => {
   const { setCurrentView } = useContext(MyContext)!;
-  const [store, setStore] = useState(false);
+  const [store, setStore] = useState(true);
   const [extract, setExtract] = useState(false);
-  const [setting, setSetting] = useState(true);
+  const [setting, setSetting] = useState(false);
   const [onSearch, setOnSearch] = useState(false);
   const [account, setAccount] = useState(false);
   const [modal, setModal] = useState(false);
@@ -434,7 +434,7 @@ const Home = () => {
   return (
     <>
       <div
-        className={`relative w-[800px] h-[600px] flex flex-col font-baloo pb-4 ${
+        className={`relative w-[800px] h-[600px] flex flex-col font-baloo ${
           modal ? "bg-black bg-opacity-30" : ""
         }`}
       >
@@ -576,7 +576,7 @@ const Home = () => {
               </div>
             </div>
             <div
-              className={`flex w-full h-[275px] px-5 py-8 bg-white flex-col overflow-y-auto ${
+              className={`flex w-full h-[290px] px-5 py-8 bg-white flex-col overflow-y-auto ${
                 modal ? "bg-black bg-opacity-30" : ""
               }`}
             >
@@ -659,7 +659,7 @@ const Home = () => {
           </div>
         )}
         {setting && (
-          <div className="flex py-8 px-4 flex-col gap-4">
+          <div className="flex py-8 px-4 flex-col gap-5">
             <div className="flex flex-col">
               <p className="text-[20px] font-bold text-[#464646]">
                 Preferências
