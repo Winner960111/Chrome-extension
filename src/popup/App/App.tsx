@@ -4,8 +4,8 @@ import React, {
   useEffect,
   useRef,
   useContext,
-  ReactNode,
 } from "react";
+import axios, { AxiosResponse } from "axios";
 import { IoIosArrowBack } from "react-icons/io";
 import { FaRegUserCircle } from "react-icons/fa";
 import { MdOutlineClose } from "react-icons/md";
@@ -15,7 +15,7 @@ import { BsJournalText } from "react-icons/bs";
 import { CiSearch } from "react-icons/ci";
 import Service from "./elements/Service";
 import ServiceList from "./elements/ServiceList";
-import { TbMessage2, TbUserEdit } from "react-icons/tb";
+import { TbMessage2 } from "react-icons/tb";
 import { RiLogoutBoxLine } from "react-icons/ri";
 import { LuEye } from "react-icons/lu";
 import Extract from "./elements/Extract";
@@ -24,10 +24,9 @@ import { CiLocationOn } from "react-icons/ci";
 import { IoShieldCheckmarkOutline } from "react-icons/io5";
 import { styled } from "@mui/material/styles";
 import FormGroup from "@mui/material/FormGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Switch, { SwitchProps } from "@mui/material/Switch";
+import Switch from "@mui/material/Switch";
 import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
+import { Register } from "../App/api";
 
 const AntSwitch = styled(Switch)(({ theme }) => ({
   width: 28,
@@ -76,16 +75,90 @@ const AntSwitch = styled(Switch)(({ theme }) => ({
 type ContextType = {
   currentView: string;
   setCurrentView: React.Dispatch<React.SetStateAction<string>>;
+  name: string;
+  setName: React.Dispatch<React.SetStateAction<string>>;
+  gender: number;
+  setGender: React.Dispatch<React.SetStateAction<number>>;
+  email: string;
+  setEmail: React.Dispatch<React.SetStateAction<string>>;
+  secNum: string;
+  setSecNum: React.Dispatch<React.SetStateAction<string>>;
+  CPF: string;
+  setCPF: React.Dispatch<React.SetStateAction<string>>;
+  phoneNumber: string;
+  setPhoneNumber: React.Dispatch<React.SetStateAction<string>>;
+  birthday: string;
+  setBirthday: React.Dispatch<React.SetStateAction<string>>;
+  CEP: string;
+  setCEP: React.Dispatch<React.SetStateAction<string>>;
+  street: string;
+  setStreet: React.Dispatch<React.SetStateAction<string>>;
+  number: string;
+  setNumber: React.Dispatch<React.SetStateAction<string>>;
+  complement: string;
+  setComplement: React.Dispatch<React.SetStateAction<string>>;
+  address: string;
+  setAddress: React.Dispatch<React.SetStateAction<string>>;
+  city: string;
+  setCity: React.Dispatch<React.SetStateAction<string>>;
+  state: string;
+  setState: React.Dispatch<React.SetStateAction<string>>;
 };
 
 const MyContext = createContext<ContextType | undefined>(undefined);
 
 function App() {
   const [currentView, setCurrentView] = useState("Landing");
-
+  const [name, setName] = useState("");
+  const [gender, setGender] = useState(0);
+  const [email, setEmail] = useState("");
+  const [secNum, setSecNum] = useState("");
+  const [CPF, setCPF] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [birthday, setBirthday] = useState("");
+  const [CEP, setCEP] = useState("");
+  const [street, setStreet] = useState("");
+  const [number, setNumber] = useState("");
+  const [complement, setComplement] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
   return (
     <>
-      <MyContext.Provider value={{ currentView, setCurrentView }}>
+      <MyContext.Provider
+        value={{
+          currentView,
+          setCurrentView,
+          name,
+          setName,
+          gender,
+          setGender,
+          email,
+          setEmail,
+          secNum,
+          setSecNum,
+          CPF,
+          setCPF,
+          phoneNumber,
+          setPhoneNumber,
+          birthday,
+          setBirthday,
+          CEP,
+          setCEP,
+          street,
+          setStreet,
+          number,
+          setNumber,
+          complement,
+          setComplement,
+          address,
+          setAddress,
+          city,
+          setCity,
+          state,
+          setState,
+        }}
+      >
         {currentView === "Landing" && <Landing />}
         {currentView === "Registration1" && <Registration1 />}
         {currentView === "Registration2" && <Registration2 />}
@@ -148,6 +221,72 @@ const Landing = () => {
 };
 
 const Registration1 = () => {
+  const {
+    name,
+    setName,
+    setGender,
+    email,
+    setEmail,
+    secNum,
+    setSecNum,
+    CPF,
+    setCPF,
+    phoneNumber,
+    setPhoneNumber,
+    birthday,
+    setBirthday,
+  } = useContext(MyContext)!;
+  const handlePhoneNumber = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
+    const formattedInputValue =
+      (inputValue.length > 1 ? "(" : "") +
+      inputValue.substring(0, 2) +
+      (inputValue.length > 2 ? ") " : "") +
+      inputValue.substring(2, 3) +
+      (inputValue.length > 3 ? " " : "") +
+      inputValue.substring(3, 7) +
+      (inputValue.length > 7 ? "-" : "") +
+      inputValue.substring(7, 11);
+    setPhoneNumber(formattedInputValue);
+  };
+
+  const handleGender = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (e.target.value === "mail") {
+      setGender(1);
+    } else if (e.target.value === "female") {
+      setGender(2);
+    } else {
+      setGender(0);
+    }
+  };
+  const handleCPF = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
+    const formattedInputValue =
+      inputValue.substring(0, 3) +
+      (inputValue.length > 3 ? "." : "") +
+      inputValue.substring(3, 6) +
+      (inputValue.length > 6 ? "." : "") +
+      inputValue.substring(6, 9) +
+      (inputValue.length > 9 ? "-" : "") +
+      inputValue.substring(9, 11);
+
+    setCPF(formattedInputValue);
+  };
+
+  const handleSecNum = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // const inputValue = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
+    // if (/^[0-9]+$/.test(inputValue) || !inputValue.trim()) {
+    setSecNum(e.target.value);
+    // }
+  };
+  const handleEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+  };
+  const handleName = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (/^[a-zA-Z]+$/.test(e.target.value) || !e.target.value.trim()) {
+      setName(e.target.value);
+    }
+  };
   const { setCurrentView } = useContext(MyContext)!;
 
   return (
@@ -169,6 +308,9 @@ const Registration1 = () => {
               <input
                 type="text"
                 id="name"
+                value={name}
+                onChange={handleName}
+                autoComplete="off"
                 className="w-full border-solid border-[#E4E4E4] border-[1px] p-3 rounded-md outline-none"
                 placeholder="Escreva seu nome e sobrenome"
               />
@@ -178,9 +320,10 @@ const Registration1 = () => {
               Gênero
               <select
                 id="gender"
+                onChange={handleGender}
                 className="w-full border-solid border-[#E4E4E4] border-[1px] p-3 rounded-md outline-none"
               >
-                <option value="" disabled>
+                <option value="none" className="text-[#888]">
                   Selecione seu gênero
                 </option>
                 <option value="male">Masculino</option>
@@ -195,6 +338,9 @@ const Registration1 = () => {
               <input
                 type="text"
                 id="mail"
+                value={email}
+                onChange={handleEmail}
+                autoComplete="off"
                 className="w-full border-solid border-[#E4E4E4] border-[1px] p-3 rounded-md outline-none"
                 placeholder="Endereço de e-mail"
               />
@@ -205,6 +351,9 @@ const Registration1 = () => {
               <input
                 type="text"
                 id="name"
+                value={secNum}
+                onChange={handleSecNum}
+                autoComplete="off"
                 className="w-full border-solid border-[#E4E4E4] border-[1px] p-3 rounded-md outline-none"
                 placeholder="Defina sua senha"
               />
@@ -217,6 +366,9 @@ const Registration1 = () => {
               <input
                 type="text"
                 id="name"
+                value={CPF}
+                onChange={handleCPF}
+                autoComplete="off"
                 className="w-full border-solid border-[#E4E4E4] border-[1px] p-3 rounded-md outline-none"
                 placeholder="000.000.000-00"
               />
@@ -227,6 +379,9 @@ const Registration1 = () => {
               <input
                 type="text"
                 id="name"
+                value={phoneNumber}
+                onChange={handlePhoneNumber}
+                autoComplete="off"
                 className="w-full border-solid border-[#E4E4E4] border-[1px] p-3 rounded-md outline-none"
                 placeholder="(00) 0 0000-0000"
               />
@@ -239,6 +394,11 @@ const Registration1 = () => {
               <input
                 type="date"
                 id="date"
+                value={birthday}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setBirthday(e.target.value);
+                }}
+                autoComplete="off"
                 className="w-full border-solid border-[#E4E4E4] border-[1px] p-3 rounded-md outline-none"
               />
             </label>
@@ -265,7 +425,121 @@ const Registration1 = () => {
 };
 
 const Registration2 = () => {
-  const { setCurrentView } = useContext(MyContext)!;
+  const {
+    setCurrentView,
+    CEP,
+    setCEP,
+    city,
+    setCity,
+    address,
+    setAddress,
+    complement,
+    setComplement,
+    number,
+    setNumber,
+    street,
+    setStreet,
+    state,
+    setState,
+    name,
+    gender,
+    email,
+    secNum,
+    CPF,
+    phoneNumber,
+    birthday,
+  } = useContext(MyContext)!;
+
+  const handleRegister = async () => {
+    const data = {
+      document: CPF,
+      storeId: "77e94448-785d-41e0-b575-7420a192b362",
+      email: email,
+      birthDate: birthday,
+      firstname: name,
+      iAcceptRegulation: true,
+      iAgreeToReceiveEmail: true,
+      accordingToLgpd: true,
+      iAgreeToReceiveSms: false,
+      sex: gender,
+      address: address,
+      number: number,
+      complement: complement,
+      city: city,
+      cellphone: phoneNumber,
+      accountManager: "Browser Extension" + CPF,
+      zipCode: CEP,
+      type: "widget",
+      state: state,
+      partnerGroupId: "00000000-0000-0000-0000-000000000000",
+      password: secNum,
+      district: street,
+    };
+    // const data = {
+    //   document: "25789",
+    //   storeId: "77e94448-785d-41e0-b575-7420a192b362",
+    //   email: "hoaming@gmail.com",
+    //   birthDate: "1990-05-22",
+    //   firstname: "haoming",
+    //   lastname: "lin",
+    //   iAcceptRegulation: true,
+    //   iAgreeToReceiveEmail: true,
+    //   accordingToLgpd: true,
+    //   iAgreeToReceiveSms: false,
+    //   sex: 1,
+    //   address: "asdfasd",
+    //   number: "124",
+    //   complement: "adsfasdf",
+    //   city: "adsf",
+    //   district: "adsf",
+    //   zipCode: "12245-123",
+    //   state: "SP",
+    //   partnerGroupId: "00000000-0000-0000-0000-000000000000",
+    //   cellphone: "(00) 0 0000-0000",
+    //   type: "widget",
+    //   accountManager: "Browser Extension 000.000.000-00",
+    //   password: "asdf",
+    // };
+    const response: AxiosResponse | { status: number } = await Register(data);
+    if (response.status === 200) {
+      console.log("this is right", response);
+
+      setCurrentView("Landing");
+    } else {
+      console.log("this is wrong", response);
+    }
+  };
+  const handleCity = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCity(e.target.value);
+  };
+  const handleAddress = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAddress(e.target.value);
+  };
+  const handleComplement = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setComplement(e.target.value);
+  };
+  const handleNumber = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+
+    if (/^[0-9]*$/.test(newValue) && newValue.length <= 3) {
+      setNumber(newValue);
+    }
+  };
+
+  const handleStreet = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (/^[a-zA-Z0-9 ]+$/.test(e.target.value) || !e.target.value.trim()) {
+      setStreet(e.target.value);
+    }
+  };
+
+  const handleCEP = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value.replace(/\D/g, "");
+    const formattedInputValue =
+      inputValue.substring(0, 5) +
+      (inputValue.length > 5 ? "-" : "") +
+      inputValue.substring(5, 8);
+    setCEP(formattedInputValue);
+  };
 
   return (
     <>
@@ -286,6 +560,9 @@ const Registration2 = () => {
               <input
                 type="text"
                 id="name"
+                autoComplete="off"
+                value={CEP}
+                onChange={handleCEP}
                 className="w-full border-solid border-[#E4E4E4] border-[1px] p-3 rounded-md outline-none"
                 placeholder="00000-000"
               />
@@ -297,6 +574,9 @@ const Registration2 = () => {
               <input
                 type="text"
                 id="mail"
+                autoComplete="off"
+                value={street}
+                onChange={handleStreet}
                 className="w-full border-solid border-[#E4E4E4] border-[1px] p-3 rounded-md outline-none"
                 placeholder="Rua ou avenida"
               />
@@ -307,6 +587,9 @@ const Registration2 = () => {
               <input
                 type="text"
                 id="name"
+                autoComplete="off"
+                value={number}
+                onChange={handleNumber}
                 className="w-full border-solid border-[#E4E4E4] border-[1px] p-3 rounded-md outline-none"
                 placeholder="000"
               />
@@ -317,6 +600,9 @@ const Registration2 = () => {
               <input
                 type="text"
                 id="name"
+                autoComplete="off"
+                value={complement}
+                onChange={handleComplement}
                 className="w-full border-solid border-[#E4E4E4] border-[1px] p-3 rounded-md outline-none"
                 placeholder="Casa, apartamento ou referência"
               />
@@ -329,6 +615,9 @@ const Registration2 = () => {
               <input
                 type="text"
                 id="name"
+                autoComplete="off"
+                value={address}
+                onChange={handleAddress}
                 className="w-full border-solid border-[#E4E4E4] border-[1px] p-3 rounded-md outline-none"
                 placeholder="Escreva o nome do seu bairro"
               />
@@ -341,15 +630,19 @@ const Registration2 = () => {
               <input
                 type="text"
                 id="date"
+                autoComplete="off"
+                value={city}
+                onChange={handleCity}
                 className="w-full border-solid border-[#E4E4E4] border-[1px] p-3 rounded-md outline-none"
                 placeholder="Ex: Campinas"
               />
             </label>
 
             <label htmlFor="estate" className="w-[20%] font-medium text-[16px]">
-              Gênero
+              Estado
               <select
                 id="estate"
+                onChange={(e) => setState(e.target.value)}
                 className="w-full border-solid border-[#E4E4E4] border-[1px] p-3 rounded-md outline-none"
               >
                 <option value="1">SP</option>
@@ -368,9 +661,9 @@ const Registration2 = () => {
             </button>
             <button
               className="bg-[#BF0811] py-3 w-full rounded-md active:bg-red-800"
-              onClick={() => setCurrentView("Landing")}
+              onClick={handleRegister}
             >
-              Avançar
+              Concluir
             </button>
           </div>
         </div>
@@ -561,7 +854,7 @@ const Home = () => {
           </div>
         )}
         {extract && (
-          <div className="flex w-full font-baloo flex-col">
+          <div className={`flex w-full font-baloo flex-col `}>
             <div className="flex w-full bg-[#212121] p-5">
               <div className="flex bg-[#2A2A2A] p-5 text-white rounded-md w-full flex-col items-start">
                 <p className="text-[18px]">Meu saldo</p>
@@ -578,7 +871,7 @@ const Home = () => {
             <div
               className={`flex w-full h-[290px] px-5 py-8 bg-white flex-col overflow-y-auto ${
                 modal ? "bg-black bg-opacity-30" : ""
-              }`}
+              } ${account ? "bg-black bg-opacity-30" : ""}`}
             >
               <p className="text-[20px] font-bold">Meu extrato</p>
               <div onClick={() => setModal(true)} className="cursor-pointer">
@@ -659,7 +952,11 @@ const Home = () => {
           </div>
         )}
         {setting && (
-          <div className="flex py-8 px-4 flex-col gap-5">
+          <div
+            className={`flex py-8 px-4 flex-col gap-5 ${
+              account ? "bg-black bg-opacity-30" : ""
+            }`}
+          >
             <div className="flex flex-col">
               <p className="text-[20px] font-bold text-[#464646]">
                 Preferências
