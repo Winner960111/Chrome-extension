@@ -75,8 +75,10 @@ const AntSwitch = styled(Switch)(({ theme }) => ({
 type ContextType = {
   currentView: string;
   setCurrentView: React.Dispatch<React.SetStateAction<string>>;
-  name: string;
-  setName: React.Dispatch<React.SetStateAction<string>>;
+  firstName: string;
+  setFirstName: React.Dispatch<React.SetStateAction<string>>;
+  lastName: string;
+  setLastName: React.Dispatch<React.SetStateAction<string>>;
   gender: number;
   setGender: React.Dispatch<React.SetStateAction<number>>;
   email: string;
@@ -109,7 +111,8 @@ const MyContext = createContext<ContextType | undefined>(undefined);
 
 function App() {
   const [currentView, setCurrentView] = useState("Landing");
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [gender, setGender] = useState(0);
   const [email, setEmail] = useState("");
   const [secNum, setSecNum] = useState("");
@@ -129,8 +132,10 @@ function App() {
         value={{
           currentView,
           setCurrentView,
-          name,
-          setName,
+          firstName,
+          setFirstName,
+          lastName,
+          setLastName,
           gender,
           setGender,
           email,
@@ -169,7 +174,11 @@ function App() {
 }
 
 const Landing = () => {
+  // const []
   const { setCurrentView } = useContext(MyContext)!;
+  const handleLogin = () => {
+    setCurrentView("Home");
+  };
 
   return (
     <div className="w-[800px] h-[600px] flex flex-col justify-center items-center p-5 bg-[#212121] gap-8">
@@ -200,9 +209,7 @@ const Landing = () => {
           </div>
           <div
             className="mt-8 bg-[#BF0811] w-full text-center rounded-md py-3 text-lg active:bg-red-800 cursor-pointer"
-            onClick={() => {
-              setCurrentView("Home");
-            }}
+            onClick={handleLogin}
           >
             Entrar
           </div>
@@ -222,8 +229,10 @@ const Landing = () => {
 
 const Registration1 = () => {
   const {
-    name,
-    setName,
+    firstName,
+    setFirstName,
+    lastName,
+    setLastName,
     setGender,
     email,
     setEmail,
@@ -282,9 +291,14 @@ const Registration1 = () => {
   const handleEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
   };
-  const handleName = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFirstName = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (/^[a-zA-Z]+$/.test(e.target.value) || !e.target.value.trim()) {
-      setName(e.target.value);
+      setFirstName(e.target.value);
+    }
+  };
+  const handleLastName = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (/^[a-zA-Z]+$/.test(e.target.value) || !e.target.value.trim()) {
+      setLastName(e.target.value);
     }
   };
   const { setCurrentView } = useContext(MyContext)!;
@@ -303,13 +317,25 @@ const Registration1 = () => {
         <div className="flex w-full flex-col px-4">
           <p className="font-bold mt-4 text-[20px]">Detalhes gerais</p>
           <div className="flex w-full mt-4 gap-4">
-            <label htmlFor="name" className="w-full font-medium text-[16px]">
-              Nome
+            <label htmlFor="fname" className="w-full font-medium text-[16px]">
+              Primeiro Nome
               <input
                 type="text"
-                id="name"
-                value={name}
-                onChange={handleName}
+                id="fname"
+                value={firstName}
+                onChange={handleFirstName}
+                autoComplete="off"
+                className="w-full border-solid border-[#E4E4E4] border-[1px] p-3 rounded-md outline-none"
+                placeholder="Escreva seu nome e sobrenome"
+              />
+            </label>
+            <label htmlFor="lname" className="w-full font-medium text-[16px]">
+              Sobrenome
+              <input
+                type="text"
+                id="lname"
+                value={lastName}
+                onChange={handleLastName}
                 autoComplete="off"
                 className="w-full border-solid border-[#E4E4E4] border-[1px] p-3 rounded-md outline-none"
                 placeholder="Escreva seu nome e sobrenome"
@@ -441,7 +467,8 @@ const Registration2 = () => {
     setStreet,
     state,
     setState,
-    name,
+    firstName,
+    lastName,
     gender,
     email,
     secNum,
@@ -456,7 +483,8 @@ const Registration2 = () => {
       storeId: "77e94448-785d-41e0-b575-7420a192b362",
       email: email,
       birthDate: birthday,
-      firstname: name,
+      firstname: firstName,
+      lastname: lastName,
       iAcceptRegulation: true,
       iAgreeToReceiveEmail: true,
       accordingToLgpd: true,
@@ -475,31 +503,6 @@ const Registration2 = () => {
       password: secNum,
       district: street,
     };
-    // const data = {
-    //   document: "25789",
-    //   storeId: "77e94448-785d-41e0-b575-7420a192b362",
-    //   email: "hoaming@gmail.com",
-    //   birthDate: "1990-05-22",
-    //   firstname: "haoming",
-    //   lastname: "lin",
-    //   iAcceptRegulation: true,
-    //   iAgreeToReceiveEmail: true,
-    //   accordingToLgpd: true,
-    //   iAgreeToReceiveSms: false,
-    //   sex: 1,
-    //   address: "asdfasd",
-    //   number: "124",
-    //   complement: "adsfasdf",
-    //   city: "adsf",
-    //   district: "adsf",
-    //   zipCode: "12245-123",
-    //   state: "SP",
-    //   partnerGroupId: "00000000-0000-0000-0000-000000000000",
-    //   cellphone: "(00) 0 0000-0000",
-    //   type: "widget",
-    //   accountManager: "Browser Extension 000.000.000-00",
-    //   password: "asdf",
-    // };
     const response: AxiosResponse | { status: number } = await Register(data);
     if (response.status === 200) {
       console.log("this is right", response);
@@ -645,9 +648,35 @@ const Registration2 = () => {
                 onChange={(e) => setState(e.target.value)}
                 className="w-full border-solid border-[#E4E4E4] border-[1px] p-3 rounded-md outline-none"
               >
-                <option value="1">SP</option>
-                <option value="2">FA</option>
-                <option value="3">TX</option>
+                <option value="1">AC</option>
+                <option value="2">AL</option>
+                <option value="3">AP</option>
+                <option value="3">AM</option>
+                <option value="3">BA</option>
+                <option value="3">CE</option>
+                <option value="3">DF</option>
+                <option value="3">ES</option>
+                <option value="3">GO</option>
+                <option value="3">MA</option>
+                <option value="3">MT</option>
+                <option value="3">MS</option>
+                <option value="3">MG</option>
+                <option value="3">MS</option>
+                <option value="3">PA</option>
+                <option value="3">PB</option>
+                <option value="3">PR</option>
+                <option value="3">PE</option>
+                <option value="3">PI</option>
+                <option value="3">RJ</option>
+                <option value="3">RN</option>
+                <option value="3">RS</option>
+                <option value="3">RO</option>
+                <option value="3">RS</option>
+                <option value="3">RR</option>
+                <option value="3">SC</option>
+                <option value="3">SP</option>
+                <option value="3">SE</option>
+                <option value="3">TO</option>
               </select>
             </label>
           </div>

@@ -7,6 +7,7 @@ interface RegisterData {
   email: string;
   birthDate: string;
   firstname: string;
+  lastname: string;
   iAcceptRegulation: boolean;
   iAgreeToReceiveEmail: boolean;
   accordingToLgpd: boolean;
