@@ -26,7 +26,7 @@ import { styled } from "@mui/material/styles";
 import FormGroup from "@mui/material/FormGroup";
 import Switch from "@mui/material/Switch";
 import Stack from "@mui/material/Stack";
-import { Register } from "../App/api";
+import { Register, Login } from "../App/api";
 
 const AntSwitch = styled(Switch)(({ theme }) => ({
   width: 28,
@@ -174,10 +174,40 @@ function App() {
 }
 
 const Landing = () => {
-  // const []
+  const [email, setEmail] = useState("");
+  const [CPF, setCPF] = useState("");
+
+  const handleEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+  };
+  const handleCPF = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
+    const formattedInputValue =
+      inputValue.substring(0, 3) +
+      (inputValue.length > 3 ? "." : "") +
+      inputValue.substring(3, 6) +
+      (inputValue.length > 6 ? "." : "") +
+      inputValue.substring(6, 9) +
+      (inputValue.length > 9 ? "-" : "") +
+      inputValue.substring(9, 11);
+
+    setCPF(formattedInputValue);
+  };
+
   const { setCurrentView } = useContext(MyContext)!;
-  const handleLogin = () => {
-    setCurrentView("Home");
+  const handleLogin = async () => {
+    const data = {
+      document: CPF,
+      email: email,
+    };
+    const response: AxiosResponse | { status: number } = await Login(data);
+    if (response.status === 200) {
+      console.log("this is right", response);
+
+      setCurrentView("Home");
+    } else {
+      console.log("this is wrong", response);
+    }
   };
 
   return (
@@ -197,12 +227,15 @@ const Landing = () => {
             <input
               type="text"
               style={{ outline: "none" }}
+              onChange={handleEmail}
               className="bg-[#212121] py-4 w-full border-b-[2px] border-solid border-[#5F5F5F]"
               placeholder="Endereço de e-mail"
             />
             <input
               type="text"
+              value={CPF}
               style={{ outline: "none" }}
+              onChange={handleCPF}
               className="bg-[#212121] py-4 w-full border-b-[2px] border-solid border-[#5F5F5F]"
               placeholder="CPF"
             />
@@ -373,7 +406,7 @@ const Registration1 = () => {
             </label>
 
             <label htmlFor="name" className="w-full font-medium text-[16px]">
-              Senha de acesso
+              Senha
               <input
                 type="text"
                 id="name"
