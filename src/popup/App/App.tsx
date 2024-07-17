@@ -5,7 +5,7 @@ import React, {
   useRef,
   useContext,
 } from "react";
-import axios, { AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
 import { IoIosArrowBack } from "react-icons/io";
 import { FaRegUserCircle } from "react-icons/fa";
 import { MdOutlineClose } from "react-icons/md";
@@ -26,7 +26,7 @@ import { styled } from "@mui/material/styles";
 import FormGroup from "@mui/material/FormGroup";
 import Switch from "@mui/material/Switch";
 import Stack from "@mui/material/Stack";
-import { Register, Login } from "../App/api";
+import { Register, Login, GetBrand, Confirm } from "../App/api";
 
 const AntSwitch = styled(Switch)(({ theme }) => ({
   width: 28,
@@ -72,7 +72,15 @@ const AntSwitch = styled(Switch)(({ theme }) => ({
   },
 }));
 
+interface BrandListType {
+  logo: string;
+  cashbackFormatted: string;
+  companyName: string;
+}
+
 type ContextType = {
+  brandList: BrandListType[];
+  setBrandList: React.Dispatch<React.SetStateAction<BrandListType[]>>;
   currentView: string;
   setCurrentView: React.Dispatch<React.SetStateAction<string>>;
   firstName: string;
@@ -126,10 +134,13 @@ function App() {
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
+  const [brandList, setBrandList] = useState<BrandListType[]>([]); // Provide an initial value as an empty array of strings
   return (
     <>
       <MyContext.Provider
         value={{
+          brandList,
+          setBrandList,
           currentView,
           setCurrentView,
           firstName,
@@ -176,6 +187,7 @@ function App() {
 const Landing = () => {
   const [email, setEmail] = useState("");
   const [CPF, setCPF] = useState("");
+  const { setCurrentView, setBrandList } = useContext(MyContext)!;
 
   const handleEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -194,17 +206,34 @@ const Landing = () => {
     setCPF(formattedInputValue);
   };
 
-  const { setCurrentView } = useContext(MyContext)!;
   const handleLogin = async () => {
     const data = {
       document: CPF,
       email: email,
     };
-    const response: AxiosResponse | { status: number } = await Login(data);
+    const response: AxiosResponse | { status: number; data: any } = await Login(
+      data
+    );
     if (response.status === 200) {
-      console.log("this is right", response);
+      console.log("this is right", response.data.data.token);
+      while (true) {
+        const confirmRes: AxiosResponse | { status: number; data: any } =
+          await Confirm(response.data.data.token);
+        console.log("this is right💖💖💖===>", confirmRes.data.statusCode);
+        if (confirmRes.status === 200 && confirmRes.data.statusCode === 200) {
+          setCurrentView("Home");
+          break;
+        }
+      }
+      const tokenRes: AxiosResponse | { status: number; token: any } =
+        await GetBrand(response.data.data.token);
 
-      setCurrentView("Home");
+      if (tokenRes.status === 200) {
+        console.log("Passed===>", tokenRes.data.data);
+        setBrandList(tokenRes.data.data);
+      } else {
+        console.log("this is wrong", tokenRes);
+      }
     } else {
       console.log("this is wrong", response);
     }
@@ -735,14 +764,23 @@ const Registration2 = () => {
 };
 
 const Home = () => {
-  const { setCurrentView } = useContext(MyContext)!;
+  const { setCurrentView, brandList } = useContext(MyContext)!;
   const [store, setStore] = useState(true);
   const [extract, setExtract] = useState(false);
   const [setting, setSetting] = useState(false);
   const [onSearch, setOnSearch] = useState(false);
   const [account, setAccount] = useState(false);
   const [modal, setModal] = useState(false);
+  const [searchList, setSearchList] = useState<BrandListType[]>(brandList);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleList = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const searchValue = e.target.value.toLowerCase();
+    const filteredList = brandList.filter((item) =>
+      item.companyName.toLowerCase().includes(searchValue)
+    );
+    setSearchList(filteredList);
+  };
 
   const handleStore = () => {
     setStore(true);
@@ -873,6 +911,7 @@ const Home = () => {
                   className={`bg-[#F8F8F8] rounded-full w-full outline-none py-4 px-6 ${
                     onSearch ? "bg-white" : ""
                   }`}
+                  onChange={handleList}
                   placeholder="Buscar por nome da loja"
                   onFocus={() => setOnSearch(true)}
                   onBlur={() => setOnSearch(false)}
@@ -883,9 +922,14 @@ const Home = () => {
                 </div>
                 {onSearch && (
                   <div className="absolute top-24 w-full h-[280px] bg-white rounded-2xl flex p-5 -mt-5 divide-y-[1px] divide-gray-300 flex-col overflow-y-auto">
-                    <ServiceList />
-                    <ServiceList />
-                    <ServiceList />
+                    {searchList.map((items, index) => (
+                      <ServiceList
+                        logo={items.logo}
+                        cashback={items.cashbackFormatted}
+                        name={items.companyName}
+                        key={index}
+                      />
+                    ))}
                   </div>
                 )}
               </div>

@@ -70,3 +70,45 @@ export const Login = async (data: LoginData): Promise<AxiosResponse> => {
     return { status: 400 } as AxiosResponse; // Return a dummy response with status 400
   }
 };
+
+export const GetBrand = async (token: string): Promise<AxiosResponse> => {
+  console.log("this is submit👋====>", token);
+  const url =
+    "https://zeus-browser-extension-mservice.fidelizarmais.com/api/v1/protected/stores-with-cashback";
+  try {
+    const response: AxiosResponse = await axios.get(url, {
+      params: { offset: 0, limit: 100 },
+      headers: {
+        accept: "text/plain",
+        "x-secret-key": "d5bb12cd-138e-4831-81c6-6b5b7491a578",
+        "x-language-custom": "en-US",
+        "x-store-key": "77e94448-785d-41e0-b575-7420a192b362",
+        "x-token-authorization-customer": token,
+      },
+    });
+    return response;
+  } catch (e) {
+    return { status: 400 } as AxiosResponse; // Return a dummy response with status 400
+  }
+};
+
+export const Confirm = async (token: string): Promise<AxiosResponse> => {
+  const url =
+    "https://zeus-browser-extension-mservice.fidelizarmais.com/api/v1/public/authenticate/validate";
+  const data = {
+    token: token,
+  };
+  try {
+    const response: AxiosResponse = await axios.post(url, data, {
+      headers: {
+        "content-type": "application/json",
+        "x-secret-key": "d5bb12cd-138e-4831-81c6-6b5b7491a578",
+        "x-language-custom": "en-US",
+        "x-store-key": "77e94448-785d-41e0-b575-7420a192b362",
+      },
+    });
+    return response;
+  } catch (e) {
+    return { status: 400 } as AxiosResponse; // Return a dummy response with status 400
+  }
+};
