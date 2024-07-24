@@ -71,10 +71,33 @@ export const Login = async (data: LoginData): Promise<AxiosResponse> => {
   }
 };
 
-export const GetBrand = async (token: string): Promise<AxiosResponse> => {
+export const GetBrand = async (token: string): Promise<AxiosResponse> =>
+  new Promise((resolve, reject) => {
+    const url =
+      "https://zeus-browser-extension-mservice.fidelizarmais.com/api/v1/protected/stores-with-cashback";
+    axios
+      .get(url, {
+        params: { offset: 0, limit: 100 },
+        headers: {
+          accept: "text/plain",
+          "x-secret-key": "d5bb12cd-138e-4831-81c6-6b5b7491a578",
+          "x-language-custom": "en-US",
+          "x-store-key": "77e94448-785d-41e0-b575-7420a192b362",
+          "x-token-authorization-customer": token,
+        },
+      })
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+
+export const GetRecent = async (token: string): Promise<AxiosResponse> => {
   console.log("this is submit👋====>", token);
   const url =
-    "https://zeus-browser-extension-mservice.fidelizarmais.com/api/v1/protected/stores-with-cashback";
+    "https://zeus-browser-extension-mservice.fidelizarmais.com/api/v1/protected/last-visited-stores";
   try {
     const response: AxiosResponse = await axios.get(url, {
       params: { offset: 0, limit: 100 },

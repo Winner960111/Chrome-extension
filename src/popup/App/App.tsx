@@ -26,7 +26,7 @@ import { styled } from "@mui/material/styles";
 import FormGroup from "@mui/material/FormGroup";
 import Switch from "@mui/material/Switch";
 import Stack from "@mui/material/Stack";
-import { Register, Login, GetBrand, Confirm } from "../App/api";
+import { Register, Login, GetBrand, Confirm, GetRecent } from "../App/api";
 
 const AntSwitch = styled(Switch)(({ theme }) => ({
   width: 28,
@@ -78,9 +78,19 @@ interface BrandListType {
   companyName: string;
 }
 
+interface RecentListType {
+  logo: string;
+  conversionPercentage: string;
+  companyName: string;
+}
+
 type ContextType = {
+  token: string;
+  setToken: React.Dispatch<React.SetStateAction<string>>;
   brandList: BrandListType[];
   setBrandList: React.Dispatch<React.SetStateAction<BrandListType[]>>;
+  recentList: RecentListType[];
+  setRecentList: React.Dispatch<React.SetStateAction<RecentListType[]>>;
   currentView: string;
   setCurrentView: React.Dispatch<React.SetStateAction<string>>;
   firstName: string;
@@ -134,11 +144,18 @@ function App() {
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
+  const [token, setToken] = useState("");
   const [brandList, setBrandList] = useState<BrandListType[]>([]); // Provide an initial value as an empty array of strings
+  const [recentList, setRecentList] = useState<RecentListType[]>([]); // Provide an initial value as an empty array of strings
+
   return (
     <>
       <MyContext.Provider
         value={{
+          setToken,
+          token,
+          recentList,
+          setRecentList,
           brandList,
           setBrandList,
           currentView,
@@ -187,7 +204,7 @@ function App() {
 const Landing = () => {
   const [email, setEmail] = useState("");
   const [CPF, setCPF] = useState("");
-  const { setCurrentView, setBrandList } = useContext(MyContext)!;
+  const { setCurrentView, setToken } = useContext(MyContext)!;
 
   const handleEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -221,18 +238,10 @@ const Landing = () => {
           await Confirm(response.data.data.token);
         console.log("this is right💖💖💖===>", confirmRes.data.statusCode);
         if (confirmRes.status === 200 && confirmRes.data.statusCode === 200) {
+          setToken(response.data.data.token);
           setCurrentView("Home");
           break;
         }
-      }
-      const tokenRes: AxiosResponse | { status: number; token: any } =
-        await GetBrand(response.data.data.token);
-
-      if (tokenRes.status === 200) {
-        console.log("Passed===>", tokenRes.data.data);
-        setBrandList(tokenRes.data.data);
-      } else {
-        console.log("this is wrong", tokenRes);
       }
     } else {
       console.log("this is wrong", response);
@@ -764,15 +773,45 @@ const Registration2 = () => {
 };
 
 const Home = () => {
-  const { setCurrentView, brandList } = useContext(MyContext)!;
+  const {
+    setCurrentView,
+    brandList,
+    recentList,
+    token,
+    setBrandList,
+    setRecentList,
+  } = useContext(MyContext)!;
   const [store, setStore] = useState(true);
   const [extract, setExtract] = useState(false);
   const [setting, setSetting] = useState(false);
   const [onSearch, setOnSearch] = useState(false);
   const [account, setAccount] = useState(false);
   const [modal, setModal] = useState(false);
-  const [searchList, setSearchList] = useState<BrandListType[]>(brandList);
+  const [searchList, setSearchList] = useState<BrandListType[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    GetBrand(token)
+      .then((res) => {
+        console.log("Passed💪💪💪===>", res.data.data);
+        setBrandList(res.data.data);
+      })
+      .catch((err) => {
+        console.log("this is wrong", err);
+      });
+
+    GetRecent(token)
+      .then((res) => {
+        console.log("recentRes===>", res.data.data);
+        setRecentList(res.data.data);
+      })
+      .catch((err) => {
+        console.log("this is wrong", err);
+      });
+  }, []);
+  useEffect(() => {
+    setSearchList(brandList);
+  }, [brandList]);
 
   const handleList = (e: React.ChangeEvent<HTMLInputElement>) => {
     const searchValue = e.target.value.toLowerCase();
@@ -939,10 +978,14 @@ const Home = () => {
                 Últimas lojas acessadas
               </p>
               <div className="flex gap-2">
-                <Service />
-                <Service />
-                <Service />
-                <Service />
+                {recentList.map((items, index) => (
+                  <Service
+                    logo={items.logo}
+                    cashback={items.conversionPercentage}
+                    name={items.companyName}
+                    key={index}
+                  />
+                ))}
               </div>
             </div>
 
@@ -950,11 +993,15 @@ const Home = () => {
               <p className="font-bold text-[#464646] text-[20px]">
                 Lojas populares
               </p>
-              <div className="flex gap-2">
-                <Service />
-                <Service />
-                <Service />
-                <Service />
+              <div className="w-full flex flex-wrap gap-2 overflow-y-auto">
+                {brandList.map((items, index) => (
+                  <Service
+                    logo={items.logo}
+                    cashback={items.cashbackFormatted}
+                    name={items.companyName}
+                    key={index}
+                  />
+                ))}
               </div>
             </div>
           </div>
