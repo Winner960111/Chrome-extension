@@ -26,7 +26,14 @@ import { styled } from "@mui/material/styles";
 import FormGroup from "@mui/material/FormGroup";
 import Switch from "@mui/material/Switch";
 import Stack from "@mui/material/Stack";
-import { Register, Login, GetBrand, Confirm, GetRecent } from "../App/api";
+import {
+  Register,
+  Login,
+  GetBrand,
+  Confirm,
+  GetRecent,
+  GetSalary,
+} from "../App/api";
 
 const AntSwitch = styled(Switch)(({ theme }) => ({
   width: 28,
@@ -78,19 +85,17 @@ interface BrandListType {
   companyName: string;
 }
 
-interface RecentListType {
-  logo: string;
-  conversionPercentage: string;
-  companyName: string;
-}
-
 type ContextType = {
+  name: string;
+  setName: React.Dispatch<React.SetStateAction<string>>;
+  doc: string;
+  setDoc: React.Dispatch<React.SetStateAction<string>>;
   token: string;
   setToken: React.Dispatch<React.SetStateAction<string>>;
   brandList: BrandListType[];
   setBrandList: React.Dispatch<React.SetStateAction<BrandListType[]>>;
-  recentList: RecentListType[];
-  setRecentList: React.Dispatch<React.SetStateAction<RecentListType[]>>;
+  recentList: BrandListType[];
+  setRecentList: React.Dispatch<React.SetStateAction<BrandListType[]>>;
   currentView: string;
   setCurrentView: React.Dispatch<React.SetStateAction<string>>;
   firstName: string;
@@ -99,8 +104,8 @@ type ContextType = {
   setLastName: React.Dispatch<React.SetStateAction<string>>;
   gender: number;
   setGender: React.Dispatch<React.SetStateAction<number>>;
-  email: string;
-  setEmail: React.Dispatch<React.SetStateAction<string>>;
+  e_mail: string;
+  setE_mail: React.Dispatch<React.SetStateAction<string>>;
   secNum: string;
   setSecNum: React.Dispatch<React.SetStateAction<string>>;
   CPF: string;
@@ -128,11 +133,13 @@ type ContextType = {
 const MyContext = createContext<ContextType | undefined>(undefined);
 
 function App() {
+  const [name, setName] = useState("");
+  const [doc, setDoc] = useState("");
   const [currentView, setCurrentView] = useState("Landing");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [gender, setGender] = useState(0);
-  const [email, setEmail] = useState("");
+  const [e_mail, setE_mail] = useState("");
   const [secNum, setSecNum] = useState("");
   const [CPF, setCPF] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -146,12 +153,16 @@ function App() {
   const [state, setState] = useState("");
   const [token, setToken] = useState("");
   const [brandList, setBrandList] = useState<BrandListType[]>([]); // Provide an initial value as an empty array of strings
-  const [recentList, setRecentList] = useState<RecentListType[]>([]); // Provide an initial value as an empty array of strings
+  const [recentList, setRecentList] = useState<BrandListType[]>([]); // Provide an initial value as an empty array of strings
 
   return (
     <>
       <MyContext.Provider
         value={{
+          name,
+          setName,
+          doc,
+          setDoc,
           setToken,
           token,
           recentList,
@@ -166,8 +177,8 @@ function App() {
           setLastName,
           gender,
           setGender,
-          email,
-          setEmail,
+          e_mail,
+          setE_mail,
           secNum,
           setSecNum,
           CPF,
@@ -204,7 +215,8 @@ function App() {
 const Landing = () => {
   const [email, setEmail] = useState("");
   const [CPF, setCPF] = useState("");
-  const { setCurrentView, setToken } = useContext(MyContext)!;
+  const { setCurrentView, setToken, setName, setDoc, setE_mail } =
+    useContext(MyContext)!;
 
   const handleEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -239,6 +251,9 @@ const Landing = () => {
         console.log("this is right💖💖💖===>", confirmRes.data.statusCode);
         if (confirmRes.status === 200 && confirmRes.data.statusCode === 200) {
           setToken(response.data.data.token);
+          setName(response.data.data.name);
+          setDoc(response.data.data.document);
+          setE_mail(response.data.data.email);
           setCurrentView("Home");
           break;
         }
@@ -305,8 +320,8 @@ const Registration1 = () => {
     lastName,
     setLastName,
     setGender,
-    email,
-    setEmail,
+    e_mail,
+    setE_mail,
     secNum,
     setSecNum,
     CPF,
@@ -360,7 +375,7 @@ const Registration1 = () => {
     // }
   };
   const handleEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
+    setE_mail(e.target.value);
   };
   const handleFirstName = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (/^[a-zA-Z]+$/.test(e.target.value) || !e.target.value.trim()) {
@@ -435,7 +450,7 @@ const Registration1 = () => {
               <input
                 type="text"
                 id="mail"
-                value={email}
+                value={e_mail}
                 onChange={handleEmail}
                 autoComplete="off"
                 className="w-full border-solid border-[#E4E4E4] border-[1px] p-3 rounded-md outline-none"
@@ -541,7 +556,7 @@ const Registration2 = () => {
     firstName,
     lastName,
     gender,
-    email,
+    e_mail,
     secNum,
     CPF,
     phoneNumber,
@@ -552,7 +567,7 @@ const Registration2 = () => {
     const data = {
       document: CPF,
       storeId: "77e94448-785d-41e0-b575-7420a192b362",
-      email: email,
+      email: e_mail,
       birthDate: birthday,
       firstname: firstName,
       lastname: lastName,
@@ -778,6 +793,9 @@ const Home = () => {
     brandList,
     recentList,
     token,
+    doc,
+    name,
+    e_mail,
     setBrandList,
     setRecentList,
   } = useContext(MyContext)!;
@@ -787,6 +805,7 @@ const Home = () => {
   const [onSearch, setOnSearch] = useState(false);
   const [account, setAccount] = useState(false);
   const [modal, setModal] = useState(false);
+  const [salary, setSalary] = useState("");
   const [searchList, setSearchList] = useState<BrandListType[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -808,7 +827,17 @@ const Home = () => {
       .catch((err) => {
         console.log("this is wrong", err);
       });
+
+    GetSalary(token, doc, e_mail)
+      .then((res) => {
+        console.log("SalaryRes===>", res.data.data);
+        setSalary(res.data.data.totalCashBalanceAvailable);
+      })
+      .catch((err) => {
+        console.log("this is wrong", err);
+      });
   }, []);
+
   useEffect(() => {
     setSearchList(brandList);
   }, [brandList]);
@@ -880,7 +909,7 @@ const Home = () => {
               <FaRegUserCircle style={{ color: "white", fontSize: "25px" }} />
               <div className="flex flex-col text-white ml-1 text-[9px]">
                 <p className="leading-3">Laura</p>
-                <p className="font-bold">R$ 47.32</p>
+                <p className="font-bold">{`R$ ${salary}`}</p>
               </div>
             </div>
             <div className="rounded-full bg-[#2A2A2A] flex justify-center items-center p-1 ml-2">
@@ -900,15 +929,15 @@ const Home = () => {
                   />
                   <div className="flex flex-col">
                     <p className="font-bold text-[16px] text-[#464646]">
-                      Laura Oliveira
+                      {name}
                     </p>
-                    <p className="text-[14px] text-[#888]">200.000.000-00</p>
+                    <p className="text-[14px] text-[#888]">{doc}</p>
                   </div>
                 </div>
                 <div className="flex flex-col">
                   <p className="text-[14px] text-[#464646]">Meu saldo</p>
                   <p className="text-[16px] font-bold text-[#464646]">
-                    R$ 47,32
+                    {`R$ ${salary}`}
                   </p>
                 </div>
               </div>
@@ -977,11 +1006,11 @@ const Home = () => {
               <p className="font-bold text-[#464646] text-[20px]">
                 Últimas lojas acessadas
               </p>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-4 gap-2">
                 {recentList.map((items, index) => (
                   <Service
                     logo={items.logo}
-                    cashback={items.conversionPercentage}
+                    cashback={items.cashbackFormatted}
                     name={items.companyName}
                     key={index}
                   />
@@ -993,7 +1022,7 @@ const Home = () => {
               <p className="font-bold text-[#464646] text-[20px]">
                 Lojas populares
               </p>
-              <div className="w-full flex flex-wrap gap-2 overflow-y-auto">
+              <div className=" grid grid-cols-4 gap-2 justify-between overflow-y-auto">
                 {brandList.map((items, index) => (
                   <Service
                     logo={items.logo}
@@ -1012,7 +1041,7 @@ const Home = () => {
               <div className="flex bg-[#2A2A2A] p-5 text-white rounded-md w-full flex-col items-start">
                 <p className="text-[18px]">Meu saldo</p>
                 <div className="w-full flex justify-between items-center">
-                  <p className="text-[28px] font-bold">R$ 47.32</p>
+                  <p className="text-[28px] font-bold">{`R$ ${salary}`}</p>
                   <LuEye style={{ fontSize: "24px" }} />
                 </div>
                 <p className="text-[16px]">
@@ -1055,7 +1084,7 @@ const Home = () => {
 
                     <div className="flex flex-col items-end">
                       <p className="text-[16px] font-medium text-[#464646]">
-                        R$ 43,18
+                        {`R$ ${salary}`}
                       </p>
                       <p className="text-[15px] text-[#9E9E9E]">
                         4% de R$ 457,13
